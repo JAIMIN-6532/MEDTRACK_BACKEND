@@ -18,14 +18,6 @@ public interface ProductLogRepo extends JpaRepository<ProductLog,Long> {
     @Query("SELECT p FROM ProductLog p WHERE p.user.id = :userId AND p.createdAt > :date")
     List<ProductLog> findAllByUserIdAndCreatedAtIsAfter(@Param("userId") Long userId, @Param("date") LocalDateTime date);
 
-//    List<ProductLog> findAllByUserIdAndCreatedAtBetween(Long id, LocalDateTime startOfDay, LocalDateTime endOfDay);
-//
-//    List<ProductLog> findAllByUserIdAndHealthProductIdAndCreatedAtBetween(Long userId, Long id, LocalDateTime startOfDay, LocalDateTime endOfDay);
-//
-//    boolean existsByUserAndHealthProductAndMedicationScheduleAndCreatedAtBetween(User user, HealthProduct product, MedicationSchedule schedule, LocalDateTime startOfDay, LocalDateTime endOfDay);
-
-//    List<ProductLog> findAllByUserAndHealthProductAndCreatedAtBetween(User user, HealthProduct product, LocalDateTime startOfDay, LocalDateTime endOfDay);
-
     boolean existsByUserAndHealthProductAndMedicationScheduleAndCreatedAtBetween(
             User user,
             HealthProduct product,

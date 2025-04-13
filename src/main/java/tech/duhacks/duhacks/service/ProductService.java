@@ -89,11 +89,10 @@ public class ProductService {
     }
 
     public List<ProductLogTotalDto> getOneDay(Long userId) {
-        // Validate that the user exists.
+        // validate that the user exists.
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Define timezone and day boundaries (Asia/Kolkata).
         ZoneId zoneId = ZoneId.of("Asia/Kolkata");
         ZonedDateTime kolkataTime = ZonedDateTime.now(zoneId);
         LocalDate today = kolkataTime.toLocalDate();
@@ -101,7 +100,6 @@ public class ProductService {
         LocalDateTime endOfDay = today.atTime(23, 59, 59);
         LocalTime currentTime = kolkataTime.toLocalTime();
 
-        // Fetch all health products associated with the user.
         List<HealthProduct> products = healthProductRepo.findAllByUserId(userId);
         List<ProductLogTotalDto> result = new ArrayList<>();
 
@@ -109,11 +107,11 @@ public class ProductService {
             long takenCount = 0;
             long missedCount = 0;
 
-            // Iterate through each scheduled dose for the product.
+            // iterate through each scheduled dose for the product.
             for (MedicationSchedule schedule : product.getMedicationSchedules()) {
-                // Consider only scheduled doses that are due (scheduled time is ≤ current time).
+                // consider only scheduled doses that are due (scheduled time is ≤ current time).
                 if (currentTime.compareTo(schedule.getTime()) >= 0) {
-                    // Count logs with isTaken=true and isTaken=false for this schedule.
+                    // count logs with isTaken=true and isTaken=false for this schedule.
                     long countTaken = productRepo.countByUserAndHealthProductAndMedicationScheduleAndIsTakenAndCreatedAtBetween(
                             user, product, schedule, true, startOfDay, endOfDay);
                     long countMissed = productRepo.countByUserAndHealthProductAndMedicationScheduleAndIsTakenAndCreatedAtBetween(
@@ -141,13 +139,12 @@ public class ProductService {
 
 
     public List<ProductLogDto> createProductLog(ProductLogDto dto) {
-        // Validate user and product.
+        // validate user and product.
         User user = userRepo.findById(dto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + dto.getUserId()));
         HealthProduct product = healthProductRepo.findById(dto.getHealthProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Health Product not found with id: " + dto.getHealthProductId()));
 
-        // --- ADDED CODE START ---
         // If medication schedule IDs are empty or null, fetch schedules by health product id.
         if (dto.getMedicationScheduleIds() == null || dto.getMedicationScheduleIds().isEmpty()) {
             // Create a formatter for HH:mm time format.
@@ -166,7 +163,6 @@ public class ProductService {
                 dto.setMedicationScheduleIds(scheduleDtos);
             }
         }
-        // --- ADDED CODE END ---
 
         // Ensure the list of schedule objects is provided.
         if (dto.getMedicationScheduleIds() == null || dto.getMedicationScheduleIds().isEmpty()) {
@@ -229,7 +225,6 @@ public class ProductService {
             // Save the updated product.
             healthProductRepo.save(product);
         }
-        // --- ADDED CODE END ---
 
         // Create a log entry for the selected schedule.
         ProductLog productLog = ProductLog.builder()
